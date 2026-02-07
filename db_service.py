@@ -31,10 +31,14 @@ def get_supabase_client() -> Client:
     """Get or create Supabase client."""
     global _supabase_client
     if _supabase_client is None:
-        _supabase_client = create_client(
-            get_secret("SUPABASE_URL"),
-            get_secret("SUPABASE_KEY")
-        )
+        try:
+            _supabase_client = create_client(
+                get_secret("SUPABASE_URL"),
+                get_secret("SUPABASE_KEY")
+            )
+        except Exception as e:
+            st.error(f"Failed to initialize Supabase: {str(e)}")
+            raise
     return _supabase_client
 
 def save_message(user_id: str, role: str, content: str):
