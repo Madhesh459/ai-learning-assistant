@@ -24,11 +24,18 @@ def get_secret(key: str) -> str:
     except:
         raise ValueError(f"Missing required secret: {key}")
 
-# Initialize Supabase client
-supabase: Client = create_client(
-    get_secret("SUPABASE_URL"),
-    get_secret("SUPABASE_KEY")
-)
+# Initialize Supabase client lazily
+_supabase_client = None
+
+def get_supabase_client() -> Client:
+    """Get or create Supabase client."""
+    global _supabase_client
+    if _supabase_client is None:
+        _supabase_client = create_client(
+            get_secret("SUPABASE_URL"),
+            get_secret("SUPABASE_KEY")
+        )
+    return _supabase_client
 
 def save_message(user_id: str, role: str, content: str):
     """
@@ -40,6 +47,7 @@ def save_message(user_id: str, role: str, content: str):
         content: Message content
     """
     try:
+        supabase = get_supabase_client()
         data = {
             "user_id": user_id,
             "role": role,
@@ -62,6 +70,7 @@ def load_conversation(user_id: str, limit: int = 50):
         List of message dicts with 'role' and 'content' keys
     """
     try:
+        supabase = get_supabase_client()
         result = supabase.table('conversations')\
             .select("role, content")\
             .eq('user_id', user_id)\
@@ -90,6 +99,7 @@ def clear_conversation(user_id: str):
         user_id: User's unique identifier
     """
     try:
+        supabase = get_supabase_client()
         supabase.table('conversations')\
             .delete()\
             .eq('user_id', user_id)\

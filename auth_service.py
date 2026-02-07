@@ -23,11 +23,18 @@ def get_secret(key: str) -> str:
     except:
         raise ValueError(f"Missing required secret: {key}")
 
-# Initialize Supabase client
-supabase: Client = create_client(
-    get_secret("SUPABASE_URL"),
-    get_secret("SUPABASE_KEY")
-)
+# Initialize Supabase client lazily
+_supabase_client = None
+
+def get_supabase_client() -> Client:
+    """Get or create Supabase client."""
+    global _supabase_client
+    if _supabase_client is None:
+        _supabase_client = create_client(
+            get_secret("SUPABASE_URL"),
+            get_secret("SUPABASE_KEY")
+        )
+    return _supabase_client
 
 def signup(email: str, password: str):
     """
@@ -41,6 +48,7 @@ def signup(email: str, password: str):
         User object if successful, None otherwise
     """
     try:
+        supabase = get_supabase_client()
         response = supabase.auth.sign_up({
             "email": email,
             "password": password
@@ -65,6 +73,7 @@ def login(email: str, password: str):
         User object if successful, None otherwise
     """
     try:
+        supabase = get_supabase_client()
         response = supabase.auth.sign_in_with_password({
             "email": email,
             "password": password
@@ -80,6 +89,7 @@ def login(email: str, password: str):
 def logout():
     """Log out the current user and clear session state."""
     try:
+        supabase = get_supabase_client()
         supabase.auth.sign_out()
         st.session_state.clear()
         st.success("Logged out successfully!")
@@ -94,6 +104,7 @@ def get_current_user():
         User object if authenticated, None otherwise
     """
     try:
+        supabase = get_supabase_client()
         user = supabase.auth.get_user()
         return user.user if user else None
     except:
