@@ -179,7 +179,3 @@ MIT License - Built for hackathon demonstration purposes.
 - Streamlit for the amazing framework
 - OpenAI for GPT-4 API
 - Supabase for auth and database
-
----
-
-**Built with ❤️ for [Hackathon Name] 2024**
