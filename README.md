@@ -1,4 +1,4 @@
-# 🤖 AI Learning Assistant - Hackathon MVP
+# 🤖 AI Learning Assistant 
 
 An AI-powered coding tutor that helps developers understand complex codebases in minutes. Built with Streamlit, OpenAI, and Supabase.
 
